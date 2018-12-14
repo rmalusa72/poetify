@@ -63,6 +63,11 @@ class poetifier:
         self.num_words = len(self.text)
         self.index = 0
 
+    def set_wikipedia_text(self, query):
+        self.text = process_source_text(scr.scrape(query))
+        self.num_words = len(self.text)
+        self.index = 0
+
     def score_options(self):
         word = self.text[self.index]
         potential_words = {word:0}
@@ -127,15 +132,19 @@ class poetifier:
         return options
 
     def steps(self, steps):
+        options_set = []
         for i in range(0, steps):
-            self.step()
+            options_set.append(self.step())
+        return options_set
 
-    def backtrack(self, steps):
+    def backtrack(self, steps, remove_words=True):
 
         if steps > len(self.index_history):
             steps = len(self.index_history)
 
-        self.poem = self.poem[0:(-1*steps)]
+        if remove_words:
+            self.poem = self.poem[0:(-1*steps)]
+
         if len(self.poem) > 0:
             stresses = get_stresses(self.poem[-1])
             if stresses[-1] in "12":
@@ -147,6 +156,8 @@ class poetifier:
 
         self.index = self.index_history[-1*steps]
         self.index_history = self.index_history[0:-1*steps]
+
+        return steps
 
 
 
